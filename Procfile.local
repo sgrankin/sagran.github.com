@@ -1,0 +1,3 @@
+jekyll:  bundle exec jekyll --auto
+compass: bundle exec compass watch --config ./_config/compass.rb
+guard:   bundle exec guard --guardfile ./_config/guard.rb

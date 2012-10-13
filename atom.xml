@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Blorgh!!]]></title>
+  <link href="http://sagran.github.com/atom.xml" rel="self"/>
+  <link href="http://sagran.github.com/"/>
+  <updated>2012-10-12T22:31:22-07:00</updated>
+  <id>http://sagran.github.com/</id>
+  <author>
+    <name><![CDATA[Sergey Grankin]]></name>
+    <email><![CDATA[sargan@gmail.com]]></email>
+  </author>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Fix for a dynamic shouldAutoRotate: and UINavigationController]]></title>
+    <link href="http://sagran.github.com/iOS/2012/10/09/fix-for-a-dynamic-shouldautorotate-and-uinavigationcontroller/"/>
+    <updated>2012-10-09T19:35:00-07:00</updated>
+    <id>http://sagran.github.com/iOS/2012/10/09/fix-for-a-dynamic-shouldautorotate-and-uinavigationcontroller</id>
+    <content type="html"><![CDATA[<p>Under iOS6, <code>shouldAutorotateToInterfaceOrientation:</code> doesn&#39;t get called much anymore, so you need to implement
+<code>shouldAutorotate</code> and <code>supportedInterfaceOrientations</code>.  Hurrah for progress.  When the device rotates,
+<code>shouldAutorotate</code> on the root controller gets poked, and if it says <code>YES</code>, the OS follows up with a check of
+<code>supportedInterfaceOrientations</code> to see if it can <em>actually</em> rotate anywhere. </p>
+
+<p>One problem, however, is that <code>UINavigationController</code> doesn&#39;t believe the value of either of those calls can change,
+and so doesn&#39;t bother asking it&#39;s child controllers every time it gets a call.  Not a good thing when you need to lock
+in the interface orientation.</p>
+
+<p>So, a fix:</p>
+<div class="highlight"><pre><code class="objc"><span class="k">@implementation</span> <span class="nc">UINavigationController</span> <span class="nl">(AutorotationFix)</span>
+<span class="k">-</span> <span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="nf">shouldAutorotate</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">visibleViewController</span><span class="p">.</span><span class="n">shouldAutorotate</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n">NSUInteger</span><span class="p">)</span><span class="nf">supportedInterfaceOrientations</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">visibleViewController</span><span class="p">.</span><span class="n">supportedInterfaceOrientations</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n">UIInterfaceOrientation</span><span class="p">)</span><span class="nf">preferredInterfaceOrientationForPresentation</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">visibleViewController</span><span class="p">.</span><span class="n">preferredInterfaceOrientationForPresentation</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">@end</span>
+</code></pre>
+</div>
+
+<p>And while we&#39;re here, may as well drop this into your class for iOS5 compatibility.</p>
+<div class="highlight"><pre><code class="objc"><span class="k">-</span> <span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="nf">shouldAutorotateToInterfaceOrientation:</span><span class="p">(</span><span class="n">UIInterfaceOrientation</span><span class="p">)</span><span class="nv">interfaceOrientation</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">self</span> <span class="n">shouldAutorotate</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="p">((</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">interfaceOrientation</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">[</span><span class="n">self</span> <span class="n">supportedInterfaceOrientations</span><span class="p">]);</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[GLKView and application backgrounding]]></title>
+    <link href="http://sagran.github.com/iOS/2012/08/22/glkview-and-application-backgrounding/"/>
+    <updated>2012-08-22T17:06:00-07:00</updated>
+    <id>http://sagran.github.com/iOS/2012/08/22/glkview-and-application-backgrounding</id>
+    <content type="html"><![CDATA[<p>Do <strong>not</strong> call <code>GLKView/-setNeedsDisplay</code> after <code>applicationWillResignActive:</code> has been called &ndash; at least until your
+app is back.  While your <code>GLKViewDelegate</code> callback may do nothing, the view itself does mess about with GL and <strong>will
+crash</strong> your app (quite mysteriously).</p>
+
+<p>You&#39;ve been warned.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Stay Tuned]]></title>
+    <link href="http://sagran.github.com/meta/2012/07/10/stay-tuned/"/>
+    <updated>2012-07-10T18:47:00-07:00</updated>
+    <id>http://sagran.github.com/meta/2012/07/10/stay-tuned</id>
+    <content type="html"><![CDATA[<p>Content forthcoming.</p>
+]]></content>
+  </entry>
+  
+</feed>
